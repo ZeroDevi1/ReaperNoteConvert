@@ -1,0 +1,2 @@
+# ReaperNoteConvert
+将Reaper的MidiNoteName配置文件转换成Cubase/Nuendo可用的鼓映射配置
