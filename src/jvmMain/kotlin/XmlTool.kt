@@ -92,12 +92,12 @@ fun buildOneDrm(filePath: String) {
         ele.setAttribute("type", "list")
         var lineIndex = 0;
         var flag = false
-        var num = 0
-        while (num <= 127) {
+        var num = 127
+        while (num >=0) {
             val item = Element("item")
             item.addContent(Element("int").setAttribute("name", "INote").setAttribute("value", num.toString()))
             ele.addContent(item)
-            num++;
+            num--;
         }
 
 
@@ -175,7 +175,7 @@ fun buildOneDrm(filePath: String) {
         }
 
     }
-    buildOrderDesc(order)
+    buildOrderAsc(order)
 
 
     // 将所有的属性添加到 root 中
@@ -201,7 +201,7 @@ private fun buildOrderAsc(order: Element) {
         it.setAttribute("name", "Order")
         it.setAttribute("type", "int")
         var i = 127;
-        while (i >= 1) {
+        while (i >= 0) {
             it.addContent(Element("item").setAttribute("value", "$i"))
             i--
         }
@@ -212,7 +212,7 @@ private fun buildOrderDesc(order: Element) {
     order.let {
         it.setAttribute("name", "Order")
         it.setAttribute("type", "int")
-        var i = 1;
+        var i = 0;
         while (i <= 127) {
             it.addContent(Element("item").setAttribute("value", "$i"))
             i++
