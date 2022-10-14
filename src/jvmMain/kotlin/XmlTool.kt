@@ -24,11 +24,83 @@ fun buildXml(path: String) {
     } else {
         // 文件
         if (path.endsWith(".txt")) {
-            buildOneDrm(path)
+            buildOneDrmS1(path)
         }
     }
 
 
+}
+
+fun buildOneDrmS1(filePath: String) {
+    // 首先读取 txt 文件
+    val file = File(filePath)
+    println(file.name)
+    val lines = file.readLines()
+    // 定义一个 root 作为 xml 的根元素
+    val root = Element("Music.PitchNameList")
+    // 生成一个文档
+    val doc = Document(root)
+
+
+    // 设置 root 的属性
+    root.let { ele ->
+        var lineIndex = 0;
+        var flag = false
+        var num = 127
+        while (num >=0) {
+            val item = Element("Music.PitchName")
+            item.setAttribute("pitch", num.toString())
+            ele.addContent(item)
+            num--;
+        }
+
+
+    }
+    lines.forEach { line ->
+        if (!(line.startsWith("/") || line.startsWith("#"))) {
+            // 获取字符串中的第一个空格的位置
+            var index = line.indexOfFirst {
+                it.toString() == " "
+            }
+            if (index > 3) {
+                index = line.indexOfFirst {
+                    it.toString() == "\t"
+                }
+            }
+
+            if (index != -1) {
+                // 获取字符串中的第一个空格之前的字符串
+                val key = line.substring(0, index)
+                // 获取字符串中的第一个空格之后的字符串
+                val value = line.substring(index + 1)
+                // 循环 Map 里面的 Content
+                loop@ for (it in root.content) {
+                    if (it is Element) {
+                        if (it.getAttribute("pitch").value == key) {
+                            it.setAttribute("name", value.trim())
+                            continue@loop
+
+                        }
+
+
+                    }
+                }
+
+            }
+
+        }
+
+    }
+
+
+    val xmlOut = XMLOutputter()
+
+    // 将 xml 输出到文件
+    xmlOut.run {
+        FileWriter("${file.parent}\\${file.name.substring(0, file.name.lastIndexOf("."))}.pitchlist").use {
+            output(doc, it)
+        }
+    }
 }
 
 fun buildOneDrm(filePath: String) {
@@ -92,12 +164,12 @@ fun buildOneDrm(filePath: String) {
         ele.setAttribute("type", "list")
         var lineIndex = 0;
         var flag = false
-        var num = 127
-        while (num >=0) {
+        var num = 0
+        while (num <= 127) {
             val item = Element("item")
             item.addContent(Element("int").setAttribute("name", "INote").setAttribute("value", num.toString()))
             ele.addContent(item)
-            num--;
+            num++;
         }
 
 
@@ -175,7 +247,7 @@ fun buildOneDrm(filePath: String) {
         }
 
     }
-    buildOrderAsc(order)
+    buildOrderDesc(order)
 
 
     // 将所有的属性添加到 root 中
@@ -201,7 +273,7 @@ private fun buildOrderAsc(order: Element) {
         it.setAttribute("name", "Order")
         it.setAttribute("type", "int")
         var i = 127;
-        while (i >= 0) {
+        while (i >= 1) {
             it.addContent(Element("item").setAttribute("value", "$i"))
             i--
         }
@@ -212,7 +284,7 @@ private fun buildOrderDesc(order: Element) {
     order.let {
         it.setAttribute("name", "Order")
         it.setAttribute("type", "int")
-        var i = 0;
+        var i = 1;
         while (i <= 127) {
             it.addContent(Element("item").setAttribute("value", "$i"))
             i++
